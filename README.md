@@ -1,93 +1,52 @@
-# MotorDc_Control — configuración rápida
+# Control de Velocidad de Motor DC mediante Visión Artificial
 
-Pasos para compilar y ejecutar en Windows:
+Este repositorio contiene el código y la documentación de un sistema de control de motores DC basado en visión por computadora. El sistema detecta la posición de la mano a través de una cámara web, procesa la imagen y envía comandos mediante comunicación serial a un ESP32, el cual ajusta la velocidad del motor modificando la señal PWM.
 
-1. Asegúrate de tener JDK 11+ (recomendado JDK 17) y Gradle instalado.
-2. El proyecto ya contiene OpenCV en `opencv/build/java/opencv-480.jar` y las DLLs en `opencv/build/java/x64`.
-3. Gradle descargará `jSerialComm:2.9.3` automáticamente.
+<div align="center">
+  <img src="ruta/a/tu/demo.gif" width="600" alt="Demostración del control del motor" />
+  <p><i>Demostración del control de velocidad usando la posición de la mano.</i></p>
+</div>
 
-Usa estos comandos desde la raíz del proyecto:
+## Arquitectura del Proyecto
+
+El sistema está dividido en dos etapas principales (Control y Potencia):
+
+1. **Software (Visión Artificial y Control):** 
+   Desarrollado en Java utilizando **OpenCV** para el procesamiento de imágenes y seguimiento. Los datos calculados se envían al microcontrolador a través de la librería **jSerialComm**.
+2. **Hardware (Microcontrolador y Potencia):** 
+   Un **ESP32** recibe los comandos vía puerto serial y genera la señal PWM correspondiente. Para aislar la etapa de control de la etapa de potencia, se utiliza un transistor de nivel lógico, permitiendo el manejo seguro del motor DC.
+
+## Requisitos
+
+### Hardware
+* Microcontrolador ESP32.
+* Motor DC.
+* Transistor MOSFET de nivel lógico (ej. IRLZ44N, TIP120) o módulo driver.
+* Fuente de alimentación independiente para el motor.
+* Cámara web.
+
+### Software
+* **JDK 11+** (recomendado JDK 17).
+* **Gradle** (el proyecto incluye el wrapper).
+* **OpenCV 4.8.0** (binarios incluidos en `opencv/build/java/`).
+* **jSerialComm 2.9.3** (gestionado vía Gradle).
+* 
+<div align="center">
+	<img width="654" height="368" alt="20251113_235453(1)" src="https://github.com/user-attachments/assets/a39b44fe-b36a-41a0-a2c8-70c4ed937659" />
+	<img width="654" height="368" alt="20251113_235551" src="https://github.com/user-attachments/assets/acfe3974-f269-4e3a-8ec5-0c8edf81d33b" />
+
+  <p>Implementación básica</p>
+</div>
+
+## Instalación y Ejecución
+
+
+### 1. Preparar el Microcontrolador
+Carga el firmware en el ESP32 (código en C incluido en el repositorio) y conecta el circuito según el diagrama. Toma nota del puerto COM asignado al ESP32.
+
+### 2. Ejecutar la aplicación de Visión (PC)
+Desde Windows, abre una terminal en la raíz del proyecto. El método recomendado para compilar y ejecutar es usar Gradle:
 
 ```bash
-gradle wrapper
 ./gradlew run
-```
 
-Si no deseas usar Gradle, compila manualmente:
-
-```bash
-javac -cp ".;opencv/build/java/opencv-480.jar;jSerialComm-2.9.3.jar" ControlIntensidad.java
-java -Djava.library.path="opencv/build/java/x64" -cp ".;opencv/build/java/opencv-480.jar;jSerialComm-2.9.3.jar" ControlIntensidad
-```
-
-Notas:
-- Si obtienes `UnsatisfiedLinkError`, asegúrate de que `opencv_java480.dll` está en la ruta indicada.
-- Si la cámara no se abre, prueba cambiar el índice en `new VideoCapture(1)` a `0`.
-
-Preparar repo para push
------------------------
-
-Recomendación mínima antes de `git add` / `git commit`:
-
-- Ejecuta `clean.bat` (Windows) o `clean.ps1` (PowerShell) para eliminar `.class` generados.
-- Usa el `.gitignore` incluido (ya ignora `*.class`, `build/` y `opencv/sources/`).
-- Si prefieres mantener `jSerialComm-2.9.3.jar` fuera del repo, muévelo a `lib/` y añade `lib/` a `.gitignore`.
-
-Ejemplo de pasos para push:
-
-```bash
-git init
-git add .
-git commit -m "Initial project import"
-git branch -M main
-git remote add origin <your-repo-url>
-git push -u origin main
-```
-
-Ejecutar desde VS Code (F5)
---------------------------
-Para ejecutar con F5 en VS Code:
-
-- Asegúrate de tener la extensión "Debugger for Java" instalada.
-- La configuración de lanzamiento está en `.vscode/launch.json` y compila con la tarea en `.vscode/tasks.json`.
-- Pulsa F5; VS Code ejecutará la tarea de compilación y lanzará `ControlIntensidad` con `java.library.path` configurado.
-
-Empujar a un repositorio remoto (git)
------------------------------------
-Instrucciones rápidas para subir este proyecto a un repo remoto:
-
-1. Inicializar el repositorio (si aún no existe):
-
-```bash
-git init
-git add .
-git commit -m "Initial project import"
-```
-
-2. Añadir el remoto y subir (reemplaza `<your-repo-url>` por la URL real):
-
-```bash
-git remote add origin <your-repo-url>
-git branch -M main
-git push -u origin main
-```
-
-3. Nota sobre JARs y binarios: si prefieres no versionar `jSerialComm-2.9.3.jar`, muévelo a `lib/` y añade `lib/` en `.gitignore`. Si quieres incluirlo en el repo, no muevas el archivo.
-
-Script útil para Windows (ejecuta en la raíz del proyecto):
-
-```bat
-@echo off
-if "%1"=="" (
-	echo Usage: push_to_remote.bat <git-remote-url>
-	exit /b 1
-)
-git init
-git add .
-git commit -m "Initial project import"
-git remote add origin %1
-git branch -M main
-git push -u origin main
-```
-
-Si quieres, puedo ejecutar los comandos `git` por ti; pásame la URL del repositorio remoto (por ejemplo `https://github.com/tuUsuario/tuRepo.git`) y confirmame que quieres que haga el push desde este equipo.
