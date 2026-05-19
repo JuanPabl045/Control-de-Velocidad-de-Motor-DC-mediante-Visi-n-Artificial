@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Launch ControlIntensidad",
+      "request": "launch",
+      "mainClass": "ControlIntensidad",
+      "projectName": "MotorDc_Control",
+      "vmArgs": "-Djava.library.path=opencv/build/java/x64",
+      "classPaths": [
+        "opencv/build/java/opencv-480.jar",
+        "jSerialComm-2.9.3.jar"
+      ]
+    }
+  ]
+}

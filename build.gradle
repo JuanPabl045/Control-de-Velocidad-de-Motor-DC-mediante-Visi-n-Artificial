@@ -1,0 +1,27 @@
+plugins {
+    id 'application'
+}
+
+group 'com.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'opencv/build/java'
+    }
+}
+
+dependencies {
+    implementation name: 'opencv-480'
+    implementation 'com.fazecast:jSerialComm:2.9.3'
+}
+
+application {
+    mainClass = 'ControlIntensidad'
+}
+
+run {
+    // Ajusta la ruta nativa si tu DLL está en otra carpeta
+    jvmArgs = ["-Djava.library.path=${projectDir}/opencv/build/java/x64"]
+}

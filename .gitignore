@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+build/
+/.gradle
+
+# IDE
+.idea/
+*.iml
+
+# Native libs
+native/
+
+# Java
+*.class
+
+# OpenCV source trees (keep built java artifacts)
+opencv/sources/
